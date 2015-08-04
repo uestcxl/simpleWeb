@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
 import asyncio, logging
@@ -30,7 +30,33 @@ def create_pool(loop, **kw):
 		loop = loop
 		)
 
+#select操作
 @asyncio.coroutine
 def select(sql, args, size=None):
 	log(sql, args)
-	
+	global __pool
+	with (yield from __pool) as conn
+		cur = yield from conn.cursor(aiomysql.DictCursor)
+		yield from cur.execute(sql.replace('?', '%s'), args or())
+		if size:
+			result = yield from cur.fetchmany(size)
+		else:
+			result = yield from cur.fetchall()
+		yield from cur.close()
+		logging.info('rows returned: %s' % len(result))
+		return result
+
+#update, insert, delete直接用execute执行
+@asyncio.coroutine
+def execute(sql, args):
+	log(sql)
+	with (yield from __pool) as conn:
+		try:
+			cur = yield from conn.cursor()
+			yield from cur.execute(sql.replace('?', '%s'), args)
+			affect = cur.rowcount
+			yield from cur.close()
+		except BaseException, e:
+			raise e
+		return affect
+
