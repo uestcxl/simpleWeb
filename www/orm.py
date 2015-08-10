@@ -156,7 +156,7 @@ class Model(dict, metaclass=ModelMetaclass):
 
 	def getValue(self, key):
 		return getattr(self, key, None)
-		
+
 	def getValueOrDefault(self, key):
 		value = getattr(self, key, None)
 		if value is None:

@@ -34,4 +34,13 @@ class Blog(Model):
     content = TextField()
     create_at = FloatField(time.time)
 
+class Comment(Model):
+    __table__ = 'comments'
 
+    id = StringField(primary_key=True, default=next_int, ddl='varchar(50)')
+    blog_id = StringField(ddl='varchar(50)')
+    user_id = StringField(ddl='varchar(50)')
+    user_name = StringField(ddl='varchar(50)')
+    user_image = StringField(ddl='varchar(100)')
+    content = TextField()
+    create_at = FloatField(time.time)
